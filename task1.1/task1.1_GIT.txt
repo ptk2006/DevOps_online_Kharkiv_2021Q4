@@ -1,0 +1,16 @@
+3a0e8e1 (HEAD -> master, origin/master, origin/develop, develop) HEAD@{0}: merge develop: Fast-forward
+bde0b60 HEAD@{1}: checkout: moving from develop to master
+3a0e8e1 (HEAD -> master, origin/master, origin/develop, develop) HEAD@{2}: commit (merge): Merge branch 'styles' into develop
+f663a1c (origin/images, images) HEAD@{3}: merge images: Fast-forward
+f73ed35 HEAD@{4}: checkout: moving from styles to develop
+96656c5 (origin/styles, styles) HEAD@{5}: commit: 17. Change your index.html. Commit.
+496d277 HEAD@{6}: commit: 16. Create branch with name “styles”. Checkout on it. Add styles folder with styles source inside it. Commit.
+f73ed35 HEAD@{7}: checkout: moving from develop to styles
+f73ed35 HEAD@{8}: checkout: moving from images to develop
+f663a1c (origin/images, images) HEAD@{9}: commit: 14. Change your index.html. Add images source inside it. Commit.
+17e4cac HEAD@{10}: commit: 13. Create branch with name “images”. Checkout on it. Add images folder with
+f73ed35 HEAD@{11}: checkout: moving from develop to images
+f73ed35 HEAD@{12}: commit: 12. Create index.html empty file. Commit.
+bde0b60 HEAD@{13}: checkout: moving from master to develop
+bde0b60 HEAD@{14}: commit (initial): 10. Make init commit.
+
