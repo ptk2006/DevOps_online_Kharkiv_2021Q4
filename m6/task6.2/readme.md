@@ -156,6 +156,3 @@ Address:	192.168.255.1#53
 Name:	serv1.example.org
 Address: 192.168.255.2
 ```
-6. ***Using the scheme which follows, configure dynamic routing using OSPF protocol.
-
-
