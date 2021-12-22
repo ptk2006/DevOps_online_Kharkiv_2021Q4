@@ -68,8 +68,8 @@ Edit block "options" at /etc/bind/named.conf.options
                 8.8.4.4;
         };
  ```
-It's enough for caching DNS server
-### For local DNS zone
+#### It's enough for caching DNS server
+#### For local DNS zone
 Edit /etc/bind/named.conf.local
 ```
 zone "example.org" {
