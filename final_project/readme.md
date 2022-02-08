@@ -16,11 +16,14 @@ Login into your azure subscription. If host dosn't have brouser use "az login --
 Do "terraform apply main.tf file".
 After this, count of VM will be created.
 Terraform will start ansible which two playbooks:
-The ###First creates Jenkins host,  will copy private key to jenkins folder, will install ChuckNorris plugin
+- The First creates Jenkins host,  will copy private key to jenkins folder, will install ChuckNorris plugin
 and  will change Jenkins initialAdminPassword to credentials set in vars in ansible playbook.
-The ###Second creates web servers will add docker image with nginx service and will copied index.php file into nginx home directory.
+- The Second creates web servers will add docker image with nginx service and will copied index.php file into nginx home directory.
+
 All tasks should be positive complete.
+
 Outputs should include public IP addresses, fqdn for each VM and sensetive private key for ssh connections.
 
 Open http web pages port 8080 for jenkins host
+
 Open http web pages port 80 for all other fqdn. You should see they ip addresses on pages content.
