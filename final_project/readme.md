@@ -15,7 +15,7 @@ Change values in file variables.tf:
 Login into your azure subscription. If host dosn't have brouser use "az login --use-device-code".
 Do "terraform apply main.tf file".
 After this, count of VM will be created.
-Terraform will start ansible which two playbooks:
+Terraform will start ansible whith two playbooks:
 - The First creates Jenkins host,  will copy private key to jenkins folder, will install ChuckNorris plugin
 and  will change Jenkins initialAdminPassword to credentials set in vars in ansible playbook.
 - The Second creates web servers will add docker image with nginx service and will copied index.php file into nginx home directory.
