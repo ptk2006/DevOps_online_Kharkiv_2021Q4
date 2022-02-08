@@ -1,0 +1,77 @@
+- name: docker setup
+  hosts: all
+  remote_user: vmadm
+  become: true
+  tasks:
+  - name: Wait for VM
+    wait_for: port=22 host="{{ inventory_hostname }}"  search_regex=OpenSSH delay=10
+    delegate_to: localhost
+    become: false
+  - name: Install Pre-requisite Packages
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      - python3
+      - libselinux-python
+  - name: Add Docker CE Repository
+    yum_repository:
+      description: repo for docker
+      name: docker-ce
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      gpgcheck: false
+  - name: Install Docker
+    package:
+      name: docker-ce
+      state: present
+  - name: Start and Enable Docker Daemon
+    service:
+      name: docker
+      state: started
+      enabled: true
+  - name: Install Required Python Modules, Docker SDK, SElinux
+    pip:
+      name: "{{ item }}"
+      state: present
+      executable: pip3
+    loop:
+      - six
+      - docker
+      - selinux
+    vars:
+      ansible_python_interpreter: /usr/bin/python3
+  - name: Make Directory on Host
+    file:
+      path: /home/vmadm/app
+      state: directory
+      mode: 0755
+  - name: Copy Page to Host Directory
+    copy:
+      src: index.php
+      dest: /home/vmadm/app/index.php
+      mode: 0644
+      owner: vmadm
+      group: vmadm
+  - name: Pull WebDevOps PHP-FPM plus NGINX Docker Image
+    docker_image:
+      name: webdevops/php-nginx
+      tag: centos-7
+      source: pull
+    vars:
+      ansible_python_interpreter: /usr/bin/python3
+  - name: Start NGINX in Container
+    docker_container:
+      name: php-nginx
+      image: webdevops/php-nginx:centos-7
+      restart_policy: unless-stopped
+      volumes:
+        - /home/vmadm/app:/app
+      ports:
+        - "80:80"
+      state: started
+      detach: true
+    vars:
+      ansible_python_interpreter: /usr/bin/python3

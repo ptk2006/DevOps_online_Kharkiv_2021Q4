@@ -1,0 +1,67 @@
+- name: jenkins setup
+  hosts: all
+  remote_user: vmadm
+  become: true
+  vars:
+    jenkins_user: "admin"
+    jenkins_pass: "admin-321"
+  tasks:
+  - name: Wait for VM
+    wait_for: port=22 host="{{ inventory_hostname }}"  search_regex=OpenSSH delay=10
+    delegate_to: localhost
+    become: false
+  - name: Install Pre-requisite Packages
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - yum-utils
+      - java-11-openjdk-devel
+      - epel-release
+      - daemonize
+      - git
+  - name: Add Jenkins Repository
+    yum_repository:
+      description: repo for jenkins
+      name: jenkins
+      baseurl: http://pkg.jenkins.io/redhat
+      gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+      gpgcheck: yes
+      enabled: yes
+  - name: Install Jenkins
+    yum:
+      name: jenkins
+      update_cache: yes
+      state: present
+  - name: Start and Enable Jenkins Daemon
+    service:
+      name: jenkins
+      state: started
+      enabled: true
+  - name: Creates jenkins SSH key directory
+    file:
+      path: /var/lib/jenkins/.ssh
+      state: directory
+      owner: jenkins
+      group: jenkins
+      mode: 0700
+  - name: Copy SSH key to Host Directory
+    copy:
+      src: id_rsa
+      dest: /var/lib/jenkins/.ssh/id_rsa
+      mode: 0600
+      owner: jenkins
+      group: jenkins
+  - name: Copy Script to Host Directory
+    copy:
+      src: jenkins_initial_pswd.sh
+      dest: /home/vmadm/jenkins_initial_pswd.sh
+      mode: 0755
+  - name: Hard wait before run local script
+    pause:
+      seconds: 60
+  - name: Run a script changing Jenkins initial password (must be re-change at first logon)
+    command: sh /home/vmadm/jenkins_initial_pswd.sh {{ jenkins_user }} {{ jenkins_pass }}
+    args:
+      chdir: /home/vmadm/
+      creates: /home/vmadm/jenkins-cli.jar
