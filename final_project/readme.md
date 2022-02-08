@@ -11,6 +11,7 @@ Change values in file variables.tf:
 - my_tenant_id
 - my_subscription_id
 - and other if you need.
+
 Login into your azure subscription. If host dosn't have brouser use "az login --use-device-code".
 Do "terraform apply main.tf file".
 After this, count of VM will be created.
