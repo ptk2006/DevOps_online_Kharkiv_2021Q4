@@ -24,6 +24,6 @@ All tasks should be positive complete.
 
 Outputs should include public IP addresses, fqdn for each VM and sensetive private key for ssh connections.
 
-Open http web pages port 8080 for jenkins host
+Open http web page port 8080 for jenkins host
 
 Open http web pages port 80 for all other fqdn. You should see they ip addresses on pages content.
