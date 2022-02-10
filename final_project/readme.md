@@ -1,4 +1,4 @@
-# Web severs with load balancer in Azure cloud and deploying start page
+# Web severs with load balancer in Azure cloud
 
 This are files for crate and configure an infrastructure in AZURE cloud. It creates amount of virtual machines witch sets in  variable "node_count".
 Every VM will have public ip and Azure domain name. The first of them will be Jenkins host, other - target hosts with nginx web server in docker conteiner.
