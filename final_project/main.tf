@@ -55,6 +55,58 @@ resource "azurerm_public_ip" "publicip" {
     environment = var.environment
   }
 }
+# Create public IP address load balanser
+resource "azurerm_public_ip" "publiciplb" {
+  name                = "${var.resource_prefix}PublicIPLB"
+  location            = var.resource_location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+  domain_name_label   = "${var.resource_prefix}lb-target"
+
+  tags = {
+    environment = var.environment
+  }
+}
+# Create LoadBalancer
+resource "azurerm_lb" "loadbalancer" {
+  name                = "${var.resource_prefix}LoadBalancer"
+  location            = var.resource_location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  frontend_ip_configuration {
+    name                 = "publicIPAddressLB"
+    public_ip_address_id = azurerm_public_ip.publiciplb.id
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+# Create Load Balancer's Backend Address Pool
+resource "azurerm_lb_backend_address_pool" "backendaddresspool" {
+  loadbalancer_id = azurerm_lb.loadbalancer.id
+  name            = "${var.resource_prefix}BackEndAddressPool"
+}
+# Load Balancer health check
+resource "azurerm_lb_probe" "lbprobe" {
+  resource_group_name = azurerm_resource_group.rg.name
+  loadbalancer_id     = azurerm_lb.loadbalancer.id
+  name                = "${var.resource_prefix}http-probe"
+  port                = 80
+}
+#Load balanser rule
+resource "azurerm_lb_rule" "lbrule" {
+  resource_group_name            = azurerm_resource_group.rg.name
+  loadbalancer_id                = azurerm_lb.loadbalancer.id
+  name                           = "${var.resource_prefix}LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "publicIPAddressLB"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.backendaddresspool.id]
+  probe_id                       = azurerm_lb_probe.lbprobe.id
+  depends_on                     = [azurerm_lb_probe.lbprobe]
+}
 # Create network security group
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.resource_prefix}NetworkSecurityGroup"
@@ -100,6 +152,22 @@ resource "azurerm_subnet_network_security_group_association" "sgassociation" {
   subnet_id                 = azurerm_subnet.subnet.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
+# Connect to Load Balancer's Backend Address Pool
+resource "azurerm_network_interface_backend_address_pool_association" "backendaddrassociation" {
+  count                   = var.node_count - 1
+  network_interface_id    = element(azurerm_network_interface.nic.*.id, count.index + 1)
+  ip_configuration_name   = "${var.resource_prefix}NicConfiguration"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.backendaddresspool.id
+}
+# Availability Set for Virtual Machines
+resource "azurerm_availability_set" "avset" {
+  name                         = "avset"
+  location                     = var.resource_location
+  resource_group_name          = azurerm_resource_group.rg.name
+  platform_fault_domain_count  = 2
+  platform_update_domain_count = 2
+  managed                      = true
+}
 # Create virtual machine
 # Create an SSH key and create key file
 resource "tls_private_key" "vm_ssh" {
@@ -116,6 +184,7 @@ resource "azurerm_linux_virtual_machine" "vmlinux" {
   name                  = count.index == 0 ? "${var.resource_prefix}jenkins-${format("%02d", count.index)}" : "${var.resource_prefix}target-${format("%02d", count.index)}"
   location              = var.resource_location
   resource_group_name   = azurerm_resource_group.rg.name
+  availability_set_id   = azurerm_availability_set.avset.id
   network_interface_ids = [element(azurerm_network_interface.nic.*.id, count.index)]
   size                  = var.vm_size
   os_disk {
@@ -151,12 +220,15 @@ resource "azurerm_linux_virtual_machine" "vmlinux" {
     }
   }
 }
-output "public_IP_addresses" {
-  value       = azurerm_linux_virtual_machine.vmlinux.*.public_ip_address
-  description = "The first is Jenkins, others are Targets"
+output "full_domain_name_load_balancer" {
+  value = azurerm_public_ip.publiciplb.fqdn
 }
 output "full_domain_name" {
   value = azurerm_public_ip.publicip.*.fqdn
+}
+output "public_IP_addresses" {
+  value       = azurerm_linux_virtual_machine.vmlinux.*.public_ip_address
+  description = "The first is Jenkins, others are Targets"
 }
 output "tls_private_key" {
   value     = tls_private_key.vm_ssh.private_key_pem
