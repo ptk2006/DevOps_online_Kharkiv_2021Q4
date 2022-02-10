@@ -24,6 +24,6 @@ All tasks should be positive complete.
 
 Outputs should include public IP addresses, fqdn for each VM, fqdn for load balancer and sensetive private key for ssh connections.
 
-Open http web page port 8080 for jenkins host/
+Open http web page port 8080 for jenkins host.
 
 Open http web page port 80 for load balancer fqdn. You should see ip address and name VM traffic on which is transfered by load balancer.
