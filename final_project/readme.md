@@ -1,4 +1,4 @@
-# Autocreating Jenkins host and target hosts in Azure Cloud
+# Web severs with load balancer in Azure cloud and deploying start page
 
 This are files for crate and configure an infrastructure in AZURE cloud. It creates amount of virtual machines witch sets in  variable "node_count".
 Every VM will have public ip and Azure domain name. The first of them will be Jenkins host, other - target hosts with nginx web server in docker conteiner.
@@ -22,8 +22,8 @@ and  will change Jenkins initialAdminPassword to credentials set in vars in ansi
 
 All tasks should be positive complete.
 
-Outputs should include public IP addresses, fqdn for each VM and sensetive private key for ssh connections.
+Outputs should include public IP addresses, fqdn for each VM, fqdn for load balancer and sensetive private key for ssh connections.
 
-Open http web page port 8080 for jenkins host
+Open http web page port 8080 for jenkins host/
 
-Open http web pages port 80 for all other fqdn. You should see they ip addresses on pages content.
+Open http web page port 80 for load balancer fqdn. You should see ip address and name VM traffic on which is transfered by load balancer.
